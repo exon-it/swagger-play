@@ -8,6 +8,8 @@ import io.swagger.models.*;
 import io.swagger.models.Contact;
 import io.swagger.models.ExternalDocs;
 import io.swagger.models.Tag;
+import io.swagger.models.auth.In;
+import io.swagger.models.auth.SecuritySchemeDefinition;
 import io.swagger.models.parameters.*;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.*;
@@ -245,6 +247,7 @@ public class PlayReader {
         }
 
         readInfoConfig(config);
+        readSecurityDefinitions(config);
 
         for (String consume : config.consumes()) {
             if (StringUtils.isNotEmpty(consume)) {
@@ -351,6 +354,61 @@ public class PlayReader {
         }
 
         info.getVendorExtensions().putAll(BaseReaderUtils.parseExtensions(infoConfig.extensions()));
+    }
+
+    private void readSecurityDefinitions(SwaggerDefinition config) {
+        SecurityDefinition def = config.securityDefinition();
+        Map<String, SecuritySchemeDefinition> defs = swagger.getSecurityDefinitions();
+        if (defs == null) {
+            defs = new HashMap<>();
+            swagger.setSecurityDefinitions(defs);
+        }
+
+        for (ApiKeyAuthDefinition apiKeyAuth : def.apiKeyAuthDefinitions()) {
+            String key = apiKeyAuth.key();
+            io.swagger.models.auth.ApiKeyAuthDefinition apiKey = new io.swagger.models.auth.ApiKeyAuthDefinition();
+            apiKey.setName(apiKeyAuth.name());
+            apiKey.setIn(In.forValue(apiKeyAuth.in().toValue()));
+            if (!apiKeyAuth.description().isEmpty()) {
+                apiKey.setDescription(apiKeyAuth.description());
+            }
+            defs.put(key, apiKey);
+        }
+
+        for (BasicAuthDefinition basicAuth: def.basicAuthDefinitions()) {
+            String key = basicAuth.key();
+            io.swagger.models.auth.BasicAuthDefinition basic = new io.swagger.models.auth.BasicAuthDefinition();
+            if (!basicAuth.description().isEmpty()) {
+                basic.setDescription(basicAuth.description());
+            }
+            defs.put(key, basic);
+        }
+
+        for (OAuth2Definition oauthAuth: def.oAuth2Definitions()) {
+            String key = oauthAuth.key();
+            io.swagger.models.auth.OAuth2Definition oauth = new io.swagger.models.auth.OAuth2Definition();
+            switch(oauthAuth.flow()) {
+                case IMPLICIT:
+                    oauth.implicit(oauthAuth.authorizationUrl());
+                    break;
+                case ACCESS_CODE:
+                    oauth.accessCode(oauthAuth.authorizationUrl(), oauthAuth.tokenUrl());
+                    break;
+                case PASSWORD:
+                    oauth.password(oauthAuth.tokenUrl());
+                    break;
+                case APPLICATION:
+                    oauth.application(oauthAuth.tokenUrl());
+                    break;
+            }
+            for (Scope authScope: oauthAuth.scopes()) {
+                oauth.addScope(authScope.name(), authScope.description());
+            }
+            if (!oauthAuth.description().isEmpty()) {
+                oauth.setDescription(oauthAuth.description());
+            }
+            defs.put(key, oauth);
+        }
     }
 
     private void readImplicitParameters(Method method, Operation operation, Class<?> cls) {
