@@ -7,21 +7,7 @@ This is a module to support the play2 framework from [playframework](http://www.
 
 ## Version History
 
-* swagger-play2 1.6.1-SNAPSHOT supports play 2.6 and swagger 2.0.
-
-* swagger-play2 1.5.1 supports play 2.4 and swagger 2.0.  If you need swagger 1.2 support, use 1.3.13. If you need 2.2 support, use 1.3.7 or earlier.
-
-* swagger-play2 1.3.13 supports play 2.4.  If you need 2.2 support, use 1.3.7 or earlier.
-
-* swagger-play2 1.3.12 supports play 2.3.  If you need 2.2 support, use 1.3.7 or earlier.
-
-* swagger-play2 1.3.7 supports play 2.2.  If you need 2.1 support, please use 1.3.5 or earlier
-
-* swagger-play2 1.3.6 requires play 2.2.x.
-
-* swagger-play2 1.2.1 and greater support scala 2.10 and play 2.0 and 2.1.
-
-* swagger-play2 1.2.0 support scala 2.9.x and play 2.0, please use 1.2.0.
+* `by.exonit:swagger-play2-play26` supports play 2.6 and swagger 2.0.
 
 Usage
 -----
@@ -30,7 +16,7 @@ You can depend on pre-built libraries in maven central by adding the following d
 
 ```
 libraryDependencies ++= Seq(
-  "io.swagger" %% "swagger-play2" % "1.6.1-SNAPSHOT"
+  "by.exonit" %% "swagger-play2-play26" % "1.0.0-SNAPSHOT"
 )
 ```
 
@@ -55,9 +41,15 @@ play.modules.enabled += "play.modules.swagger.SwaggerModule"
 2\. Add the resource listing to your routes file (you can read more about the resource listing [here](https://github.com/swagger-api/swagger-core/wiki/Resource-Listing))
 
 ```
-
 GET     /swagger.json           controllers.ApiHelpController.getResources
+```
 
+You can generate Swagger resource listing for specific path, which is useful for versioned APIs:
+```
+# API v1 routes are defined in another routing config
+->         /api/v1/                         api_v1.Routes
+
+GET        /api/v1/swagger.json             controllers.ApiHelpController.getResource(path = "/api/v1")
 ```
 
 3\. Annotate your REST endpoints with Swagger annotations. This allows the Swagger framework to create the [api-declaration](https://github.com/swagger-api/swagger-core/wiki/API-Declaration) automatically!
@@ -110,7 +102,7 @@ with `ApiImplicitParam` annotations.  If they are `queryParam`s or `pathParam`s,
 
 # application.conf - config options
 ```
-api.version (String) - version of API | default: "beta"
+api.version (String) - version of API | default: empty, will be replaced with "beta" if not set
 swagger.api.basepath (String) - base url | default: "http://localhost:9000"
 swagger.filter (String) - classname of swagger filter | default: empty
 swagger.api.info = {
@@ -132,6 +124,7 @@ Nevertheless, a helper is provided `SwaggerApplicationLoader` to ease the use of
 ## License
 
 ```
+Copyright 2017 Exon IT
 Copyright 2017 SmartBear Software
 
 Licensed under the Apache License, Version 2.0 (the "License");

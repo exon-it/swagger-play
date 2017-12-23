@@ -1,4 +1,4 @@
-# Swagger Play Integration
+# Exon-IT Swagger Play Integration
 
 The goal of Swagger™ is to define a standard, language-agnostic interface to REST APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection. When properly defined via Swagger, a consumer can understand and interact with the remote service with a minimal amount of implementation logic. Similar to what interfaces have done for lower-level programming, Swagger removes the guesswork in calling the service.
 
@@ -14,12 +14,7 @@ Please see the project [Root Folder](https://github.com/swagger-api/swagger-play
 
 Scala Versions | Play Version | Swagger Version | swagger-play version
 ---------------|--------------|-----------------|---------------------
-2.11.x, 2.12.x | 2.6.x        | 2.0             | 1.6.0
-2.11.6, 2.11.7 | 2.4.x, 2.5.x | 2.0             | 1.5.0
-2.10.4, 2.11.1 | 2.3.x        | 1.2             | 1.3.12
-2.9.1, 2.10.4  | 2.2.x        | 1.2             | 1.3.7
-2.9.1, 2.10.4  | 2.1.x        | 1.2             | 1.3.5
-2.8.1          | 1.2.x        | 1.2             | 0.1
+2.11.x, 2.12.x | 2.6.x        | 2.0             | 1.0.0
 
 Other Swagger-Play integrations
 -------
@@ -31,7 +26,8 @@ This Swagger-Play integration allows you to use [Swagger annotations](https://gi
 License
 -------
 
-Copyright 2011-2017 SmartBear Software
+Copyright 2017 Exon IT
+Copyright 2017 SmartBear Software
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
