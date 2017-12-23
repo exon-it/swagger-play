@@ -1,12 +1,13 @@
-name := "swagger-play2"
-version := "1.6.1-SNAPSHOT"
+lazy val repo: Option[String] = sys.props.get("publishTo")
 
-checksums in update := Nil
+organization := "by.exonit"
+name := "swagger-play2-play26"
+version := "1.0.0-SNAPSHOT"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.11"
+crossScalaVersions := Seq(scalaVersion.value, "2.12.4")
 
-crossScalaVersions := Seq(scalaVersion.value, "2.12.2")
-
+resolvers += Resolver.sonatypeRepo("snapshots")
 libraryDependencies ++= Seq(
   "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.8.9",
   "org.slf4j"          % "slf4j-api"                  % "1.7.21",
@@ -21,32 +22,20 @@ libraryDependencies ++= Seq(
 
 mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback.xml")) }
 
-publishTo <<= version { (v: String) =>
-  val nexus = "https://oss.sonatype.org/"
-  if (v.trim.endsWith("SNAPSHOT"))
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
 publishArtifact in Test := false
 publishMavenStyle := true
-pomIncludeRepository := { x => false }
-credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
-organization := "io.swagger"
-resolvers += Resolver.sonatypeRepo("snapshots")
+bintrayOrganization := Some("exon-it")
+bintrayRepository := "maven-releases"
+bintrayReleaseOnPublish in ThisBuild := false
+
+pomIncludeRepository := { _ => false }
+licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt"))
+homepage := Some(url("https://github.com/exon-it/swagger-play2"))
+scmInfo := Some(ScmInfo(
+  url("https://github.com/exon-it/swagger-play2"),
+  "scm:git:https://github.com/exon-it/swagger-play2.git",
+  Some("scm:git:git@github.com:exon-it/swagger-play2.git")))
 pomExtra := {
-  <url>http://swagger.io</url>
-  <licenses>
-    <license>
-      <name>Apache License 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <scm>
-    <url>git@github.com:swagger-api/swagger-play.git</url>
-    <connection>scm:git:git@github.com:swagger-api/swagger-play.git</connection>
-  </scm>
   <developers>
     <developer>
       <id>fehguy</id>
@@ -73,7 +62,18 @@ pomExtra := {
       <name>Francesco Tumanischvili</name>
       <url>http://www.ft-software.net/</url>
     </developer>
+    <developer>
+      <id>antonov_i</id>
+      <name>Igor Antonov</name>
+      <email>antonov_i@exon-it.by</email>
+      <organization>Exon IT</organization>
+      <organizationUrl>http://exonit.by</organizationUrl>
+      <timezone>Europe/Minsk</timezone>
+    </developer>
   </developers>
 }
+credentials ++= sys.props.get("credentialPath").map {cp =>
+  cp.split(',').map {path => Credentials(file(path))}.toSeq
+} getOrElse Seq.empty
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)

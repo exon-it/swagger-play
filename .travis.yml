@@ -1,27 +1,40 @@
+language: scala
 sudo: false
+jdk:
+- oraclejdk8
 
-before_install: umask 0022
+script:
+- cd play-2.6/swagger-play2 && sbt ";+ test"
+
+addons:
+  apt:
+    packages:
+    - oracle-java8-installer
+
+env:
+  global:
+    - secure: "anUc1dx1EKy254aSmJn+53LBqIWrZQrSkbOBG4YpMjqh+337d/cSO472R7eLaLlqAfMRsi5lxPZS+50JHVOd0h/vpNyBAog+2Zh+FyCiaJAyR1ERK9P4q9uK9sXIvcsTOXectXv76S0iHnmjyIIp8LqrA9rJcxX3v9AVIW5Syk12xQRMFtpG18Opb8iVxencvnntdEY++S54LluYquhnYsFCf9LbRyHBma7mGW821VvO0S+ln5lHT6zJb4GH2pAzLSuUXp+LrPHfUikPT7OoJlJlDUKyyqRhZRfGc21NB0zst+cJ38fLNXgG7dx9K261Sxzdc4iU4bUEwmCde8lS0SEtA/odEZbjqG/GvC902j7otdHRXdw2CZ11S9ttVYd3B5i1ujftq1cbkespstH4pvBI3jwb5j2m3V+0XvzNM/lPiAKbkPQ6UNL15Zie0XmH994Qoi7qSvSU6UX/1cZjJ3Kbnyp0HaVO6wC2LIx1/vNgaE0IkPIpdMyOJ3BfZG/qPeWbFYDLvRotOpkTWCQUYFsw8OIMd3lTLq/4b48oTrZNquOEy1UYhE4E78PTtnw9h1LugWwMJzYH081pIlaUNTC7S7rTHWzlIo5hloZauVraDq4lW3GRYMoY7P8Vu00UAbF0XjlZwj9GvM/ZxELHRVSjmqIRqfpbFke2MJK5XXs="
+    - secure: "gGf7cLmA7egM5Tx02AQXXwga39tePRxVLOHCecfQHMxmGVWoyp/g17f7HhkoAyo+hh9DbyeD032dixA7bc0P+JVfApkvHcV6blEwNoo99VaUU9425qwZ12GA+XVYBc/Hz5Utaf3xFr7my39qsDIeKSyL2Vu8NJtCPcSfwmTzQp3qgTmcSXH3eAT7ooGTDbRmm42+6tyr3A+X+raq3xm52iXQP9bEuBzcBklcEfCm8o9Vx88+BwE+CTOHFV9AmHhULfmbSvCna/JUFwpV226zo5t940IOs/YgM0GSEVuFIGjAPP2T345Tbhkbr0yCAsUucKAu5ktv49sJeGAkl1A3FmKRKibEkym1v1+vCWr4weA59NiTD1yzVD67z37ra0UQOuULv1h+cExCflLhwnIypkjSbYqo3lCrZQ00mNgVCQx7eTdeiLPb5tD6cD+uTizfPvMCN8+fEhg1C6eSc3zzMHW1D3TFv+F8T4vuDhRDpWDQpTCzORsblrXGh9OMEpwhtvhNEKlMl5BU0q0RKfsBvSFueBwDZVPexidxHMMCnIDMDZAbIe/UIVIr8ns1lUlN44nHboU+fVvOwvLd6X2P6p6t4NUM9v9Elrw8VM2L5cYnBQOenzBHKdK32P3GiYkG01Uoc6pQCyKtEJOefU4MpgFvTbPtjtlHa8emaDYYEcE="
+
+after_success:
+  - >
+    test "${TRAVIS_PULL_REQUEST}" = 'false' &&
+    test "${TRAVIS_BRANCH}" = 'release' &&
+    cd play-2.6/swagger-play2 && sbt ';+publish'
 
 cache:
   directories:
-    - $HOME/.m2/repository
+    - $HOME/.ivy2/cache
     - $HOME/.sbt
-    - $HOME/.ivy2
 
-language: scala
+before_cache:
+  # Cleanup the cached directories to avoid unnecessary cache updates
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt        -name "*.lock"               -print -delete
 
-scala:
-  - 2.11.8
-
-script:
-  - cd play-2.4/swagger-play2 && sbt ++$TRAVIS_SCALA_VERSION compile test
-  - find $HOME/.sbt -name "*.lock" | xargs rm
-  - cd ../..
-  - cd play-2.5/swagger-play2 && sbt ++$TRAVIS_SCALA_VERSION compile test
-  - find $HOME/.sbt -name "*.lock" | xargs rm
-  - cd ../..
-  - cd play-2.6/swagger-play2 && sbt ++$TRAVIS_SCALA_VERSION compile test
-  - find $HOME/.sbt -name "*.lock" | xargs rm
-
-jdk:
-  - oraclejdk8
+notifications:
+  email:
+    recipients:
+      - secure: "e567pZmW8L8OE3+FkdzJdrTCYY2rnDB4gsEOUcu+J5WpianGhsrvnuw9lTdDj6ETtqIPMYNWCQZRdN9xp/nl/J+4MJkOkmN7mSwu9ZO0UOnwlBBVUc2X0pT7lf25EUOXprs/BYnpTOluk5RKmWUum5ytbCu9DDl+YGoDGkwCidunwXIpw3qPnBwsVkUgIemZc68jQqnZeXji3cjaOHXxnu3EKcOlPTkR/bnuIhCRNILe1NPW+Q8PJtDbX8u71aDv+TgUF30F4K3Rmm/9yye4kHdydFE6hTe0v4Xv3n+KNriWDvGya7en84nPUoerc7ws4FNryep88tYTD0Zoh4PQMwUV51ZZ/C4g65DWWaIgyaz1PbvJMtH5fstRMLveZKnJJbifs9KXPhoz020IJgZdcasQcpkQm0cep2o2GpN4P0KxgrI3wCYWq9859t0eg48gNa45UtLTWRZPeBTUy7ipX+U7miaXkemXKiKd0nBnwy1s7mWWlbi5unwzo6HZVx04YuZ55uqNQWXANePKFCyyVzRosPn8TOdnh/fLhv10flWZ9yeEZg7KpAOBVkq9/1Uw9ve3N6OXab9JXljyoOndXwU61JQ4XC/hoMzhqF3abOa4y6VDH2LULrsEMOigrzUvWUK7jFAAlgtPjdwzpMmzZKL3ICJlbjhmXJXBXNAGUtE="
+      - secure: "L+LogCiW03C/i9slPVZVY1U1Yo3o5SMSI/8pANqEdD0hght1IGAXhQ835l1TcA5yu+BlLbFKQlZOCKCckJBhU/D1qvrSdj1S0nvoxIBj3AaAkbMNIDvXtWOkIjymZSVpoySsz+5wMnW2euNS3ykNAoK8uuFXUC5cXz+Vo19HXC2LY3XKdDVq0HYjOYyyPTaKRXPtYDq50XBQs7UDOOo19DQxY1JNupA2B/2q5XvXMBQaAZVnlsw+OqOOqy1KItwteOg1MrIXRgsE66ovwBS7CvWmE9oFzIhhBvnfof9ZY7ua8KVTlo/FwdBBmvzzD1Ed4UsU/RJeuDnlvAlKRfgYClUjyqrw/iG/BShVVUcba9vmtx+N8E9PgsWnAyLDFnr9Ve1dtlCwCGn08illvTIZPehpd/8C+5uxI0uMZol5pWhT7VvmraQNl2zuxmqArO0Pp0gYj/w8OsCA9uuig5ia6KrCvbM3/rr996qjb9h1NMfzE1uU7RwI7Ewt+SO8R23nyhEFI5E3XQN3LTL81LLEn/IaQqyqvhRLATDqcSeiscIv0Etaw1VNlmPylcnEMT/56AvL5Z861no/sYwN7gWNNqybuU0ImVR6/sBBgS1G7wwkVNWC91hUHcyLsrXkcPYrwiepPMLYRVgWC8MTRu7ZB4EjVK5yh9lpl3Gx9zkAonw="
+    on_success: always
