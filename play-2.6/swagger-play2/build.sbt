@@ -2,7 +2,7 @@ lazy val repo: Option[String] = sys.props.get("publishTo")
 
 organization := "by.exonit"
 name := "swagger-play2-play26"
-version := "1.0.0-SNAPSHOT"
+version := "1.0.0"
 
 scalaVersion := "2.11.12"
 crossScalaVersions := Seq(scalaVersion.value, "2.12.4")
