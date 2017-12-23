@@ -1,11 +1,10 @@
 package testdata
 
 import io.swagger.annotations._
-
-import play.api.mvc.{Action, Controller}
+import play.api.mvc._
 
 @Api(value = "/apitest/cats", description = "play with cats")
-class CatController extends Controller {
+class CatController(cc: ControllerComponents) extends AbstractController(cc) {
 
   @ApiOperation(value = "addCat1",
       httpMethod = "PUT",

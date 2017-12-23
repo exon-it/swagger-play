@@ -1,7 +1,8 @@
 package testdata
 
 import io.swagger.annotations._
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, BaseController, Controller, InjectedController}
+
 import scala.concurrent.Future
 
 // todo - test for these
@@ -18,7 +19,7 @@ import scala.concurrent.Future
     ))
   )
 )
-object DogController extends Controller {
+object DogController extends InjectedController {
 
   @ApiOperation(value="addDog0")
   def add0(id:String) = Action {
