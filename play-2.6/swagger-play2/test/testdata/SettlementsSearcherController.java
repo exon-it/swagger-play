@@ -5,6 +5,7 @@ import io.swagger.annotations.*;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class SettlementsSearcherController extends Controller {
   public Result search(
       @ApiParam(value = "A personal number of one of the sellers.", example = "0101201112345") String personalNumber,
       @ApiParam(value = "The cadastre or share id.", example = "1201-5-1-0-0", required = true) String propertyId) {
-    return ok();
+    return Results.ok();
   }
 }
 

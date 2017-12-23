@@ -3,14 +3,14 @@ import java.io.File
 import play.modules.swagger._
 import org.specs2.mutable._
 import org.specs2.mock.Mockito
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import play.modules.swagger.util.SwaggerContext
 import play.routes.compiler.{ Route => PlayRoute }
 
 class PlayApiScannerSpec extends Specification with Mockito {
 
   // set up mock for Play Router
-  val routesList = {
+  val routesList: List[PlayRoute] = {
     play.routes.compiler.RoutesFileParser.parseContent("""
 GET /api/dog testdata.DogController.list
 PUT /api/dog testdata.DogController.add1
@@ -36,17 +36,16 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
   } : _*)
 
 
-  val route = new RouteWrapper(routesRules)
+  val route = new RouteWrapper(routesRules.asJava)
   RouteFactory.setRoute(route)
 
   "PlayApiScanner" should {
     "identify correct API classes based on router and API annotations" in {
       val classes = new PlayApiScanner().classes()
       
-      classes.toList.length must beEqualTo(2)
+      classes.asScala.toList.length must beEqualTo(2)
       classes.contains(SwaggerContext.loadClass("testdata.DogController")) must beTrue
       classes.contains(SwaggerContext.loadClass("testdata.CatController")) must beTrue
     }
   }
-
 }
