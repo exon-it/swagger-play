@@ -18,15 +18,17 @@ package play.modules.swagger
 
 import java.io.File
 import javax.inject.Inject
+
 import io.swagger.config.{FilterFactory, ScannerFactory}
 import play.modules.swagger.util.SwaggerContext
 import io.swagger.core.filter.SwaggerSpecFilter
 import play.api.inject.ApplicationLifecycle
-import play.api.{Logger, Application}
+import play.api.{Application, Configuration, Logger}
 import play.api.routing.Router
+
 import scala.concurrent.Future
-import scala.collection.JavaConversions._
-import play.routes.compiler.{Route => PlayRoute, Include => PlayInclude, RoutesFileParser, StaticPart}
+import scala.collection.JavaConverters._
+import play.routes.compiler.{RoutesFileParser, StaticPart, Include => PlayInclude, Route => PlayRoute}
 
 import scala.io.Source
 
@@ -36,48 +38,48 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
 
   val logger = Logger("swagger")
 
-  val config = app.configuration
+  val config: Configuration = app.configuration
   logger.info("Swagger - starting initialisation...")
 
-  val apiVersion = config.getString("api.version") match {
+  val apiVersion: String = config.getOptional[String]("api.version") match {
     case None => "beta"
     case Some(value) => value
   }
 
-  val basePath = config.getString("swagger.api.basepath")
+  val basePath: String = config.getOptional[String]("swagger.api.basepath")
     .filter(path => !path.isEmpty)
     .getOrElse("/")
 
-  val host = config.getString("swagger.api.host")
+  val host: String = config.getOptional[String]("swagger.api.host")
     .filter(host => !host.isEmpty)
     .getOrElse("localhost:9000")
 
-  val title = config.getString("swagger.api.info.title") match {
+  val title: String = config.getOptional[String]("swagger.api.info.title") match {
     case None => ""
     case Some(value)=> value
   }
 
-  val description = config.getString("swagger.api.info.description") match {
+  val description: String = config.getOptional[String]("swagger.api.info.description") match {
     case None => ""
     case Some(value)=> value
   }
 
-  val termsOfServiceUrl = config.getString("swagger.api.info.termsOfServiceUrl") match {
+  val termsOfServiceUrl: String = config.getOptional[String]("swagger.api.info.termsOfServiceUrl") match {
     case None => ""
     case Some(value)=> value
   }
 
-  val contact = config.getString("swagger.api.info.contact") match {
+  val contact: String = config.getOptional[String]("swagger.api.info.contact") match {
     case None => ""
     case Some(value)=> value
   }
 
-  val license = config.getString("swagger.api.info.license") match {
+  val license: String = config.getOptional[String]("swagger.api.info.license") match {
     case None => ""
     case Some(value)=> value
   }
 
-  val licenseUrl = config.getString("swagger.api.info.licenseUrl") match {
+  val licenseUrl: String = config.getOptional[String]("swagger.api.info.licenseUrl") match {
     // licenceUrl needs to be a valid URL to validate against schema
     case None => "http://licenseUrl"
     case Some(value)=> value
@@ -103,17 +105,18 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
   PlayConfigFactory.setConfig(swaggerConfig)
 
 
-  val routes = parseRoutes
+  val routes: List[PlayRoute] = parseRoutes
 
   def parseRoutes: List[PlayRoute] = {
     def playRoutesClassNameToFileName(className: String) = className.replace(".Routes", ".routes")
 
-    val routesFile = config.underlying.hasPath("play.http.router") match {
-      case false => "routes"
-      case true => config.getString("play.http.router") match {
+    val routesFile = if (config.underlying.hasPath("play.http.router")) {
+      config.getOptional[String]("play.http.router") match {
         case None => "routes"
-        case Some(value)=> playRoutesClassNameToFileName(value)
+        case Some(value) => playRoutesClassNameToFileName(value)
       }
+    } else {
+      "routes"
     }
     //Parses multiple route files recursively
     def parseRoutesHelper(routesFile: String, prefix: String): List[PlayRoute] = {
@@ -122,14 +125,12 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
       val routesContent =  Source.fromInputStream(app.classloader.getResourceAsStream(routesFile)).mkString
       val parsedRoutes = RoutesFileParser.parseContent(routesContent,new File(routesFile))
       val routes = parsedRoutes.right.get.collect {
-        case (route: PlayRoute) => {
+        case (route: PlayRoute) =>
           logger.debug(s"Adding route '$route'")
           Seq(route.copy(path = route.path.copy(parts = StaticPart(prefix) +: route.path.parts)))
-        }
-        case (include: PlayInclude) => {
+        case (include: PlayInclude) =>
           logger.debug(s"Processing route include $include")
           parseRoutesHelper(playRoutesClassNameToFileName(include.router), include.prefix)
-        }
       }.flatten
       logger.debug(s"Finished processing route file '$routesFile'")
       routes
@@ -141,14 +142,14 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
     { route =>
     {
       val routeName = s"${route.call.packageName}.${route.call.controller}$$.${route.call.method}"
-      (routeName -> route)
+      routeName -> route
     }
     } : _*)
 
-  val route = new RouteWrapper(routesRules)
+  val route = new RouteWrapper(routesRules.asJava)
   RouteFactory.setRoute(route)
-  app.configuration.getString("swagger.filter") match {
-    case Some(e) if (e != "") => {
+  app.configuration.getOptional[String]("swagger.filter") match {
+    case Some(e) if e != "" =>
       try {
         FilterFactory setFilter SwaggerContext.loadClass(e).newInstance.asInstanceOf[SwaggerSpecFilter]
         logger.debug("Setting swagger.filter to %s".format(e))
@@ -156,7 +157,6 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
       catch {
         case ex: Exception => Logger("swagger").error("Failed to load filter " + e, ex)
       }
-    }
     case _ =>
   }
 

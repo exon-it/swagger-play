@@ -103,12 +103,12 @@ public class PlayReader {
             Authorization[] authorizations = api.authorizations();
 
             for (Authorization auth : authorizations) {
-                if (auth.value() != null && !"".equals(auth.value())) {
+                if (!"".equals(auth.value())) {
                     SecurityRequirement security = new SecurityRequirement();
                     security.setName(auth.value());
                     AuthorizationScope[] scopes = auth.scopes();
                     for (AuthorizationScope scope : scopes) {
-                        if (scope.scope() != null && !"".equals(scope.scope())) {
+                        if (!"".equals(scope.scope())) {
                             security.addScope(scope.scope());
                         }
                     }
@@ -449,7 +449,9 @@ public class PlayReader {
 
         if (result instanceof AbstractSerializableParameter && type != null) {
             Property schema = createProperty(type);
-            ((AbstractSerializableParameter)p).setProperty(schema);
+            if (p != null) {
+                ((AbstractSerializableParameter)p).setProperty(schema);
+            }
         }
 
         return result;
@@ -500,35 +502,35 @@ public class PlayReader {
                     .summary(apiOperation.value())
                     .description(apiOperation.notes());
 
-            if (apiOperation.response() != null && !isVoid(apiOperation.response())) {
+            if (!isVoid(apiOperation.response())) {
                 responseType = apiOperation.response();
             }
             if (!"".equals(apiOperation.responseContainer())) {
                 responseContainer = apiOperation.responseContainer();
             }
-            if (apiOperation.authorizations() != null) {
-                List<SecurityRequirement> securities = new ArrayList<>();
-                for (Authorization auth : apiOperation.authorizations()) {
-                    if (auth.value() != null && !"".equals(auth.value())) {
-                        SecurityRequirement security = new SecurityRequirement();
-                        security.setName(auth.value());
-                        AuthorizationScope[] scopes = auth.scopes();
-                        for (AuthorizationScope scope : scopes) {
-                            if (scope.scope() != null && !"".equals(scope.scope())) {
-                                security.addScope(scope.scope());
-                            }
+
+            List<SecurityRequirement> securities = new ArrayList<>();
+            for (Authorization auth : apiOperation.authorizations()) {
+                if (!"".equals(auth.value())) {
+                    SecurityRequirement security = new SecurityRequirement();
+                    security.setName(auth.value());
+                    AuthorizationScope[] scopes = auth.scopes();
+                    for (AuthorizationScope scope : scopes) {
+                        if (!"".equals(scope.scope())) {
+                            security.addScope(scope.scope());
                         }
-                        securities.add(security);
                     }
-                }
-                if (securities.size() > 0) {
-                    securities.forEach(operation::security);
+                    securities.add(security);
                 }
             }
-            if (apiOperation.consumes() != null && !apiOperation.consumes().isEmpty()) {
+            if (securities.size() > 0) {
+                securities.forEach(operation::security);
+            }
+
+            if (!apiOperation.consumes().isEmpty()) {
                 operation.consumes(Arrays.asList(toArray(apiOperation.consumes())));
             }
-            if (apiOperation.produces() != null && !apiOperation.produces().isEmpty()) {
+            if (!apiOperation.produces().isEmpty()) {
                 operation.produces(Arrays.asList(toArray(apiOperation.produces())));
             }
         }
@@ -620,7 +622,7 @@ public class PlayReader {
     private static Type getOptionTypeFromString (String simpleTypeName, Class<?> cls) {
 
         if (simpleTypeName == null) return null;
-        String regex = "(Option|scala\\.Option)\\s*\\[\\s*(Int|Long|Float|Double|Byte|Short|Char|Boolean)\\s*\\]\\s*$";
+        String regex = "(Option|scala\\.Option)\\s*\\[\\s*(Int|Long|Float|Double|Byte|Short|Char|Boolean)\\s*]\\s*$";
 
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(simpleTypeName);

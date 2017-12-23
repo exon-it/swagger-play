@@ -9,7 +9,6 @@ import org.specs2.mutable._
 import org.specs2.mock.Mockito
 import play.api.Logger
 import io.swagger.util.Json
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import play.routes.compiler.{ Route => PlayRoute }
 
@@ -63,7 +62,7 @@ PUT /api/dog/:id testdata.DogController.add0(id:String)
 
   var scanner = new PlayApiScanner()
   ScannerFactory.setScanner(scanner)
-  val route = new RouteWrapper(routesRules)
+  val route = new RouteWrapper(routesRules.asJava)
   RouteFactory.setRoute(route)
 
   "ApiListingCache" should {

@@ -11,18 +11,16 @@ object ApiListingCache {
     cache.orElse {
       Logger("swagger").debug("Loading API metadata")
 
-      val scanner = ScannerFactory.getScanner()
+      val scanner = ScannerFactory.getScanner
       val classes = scanner.classes()
       val reader = new PlayReader(null)
       var swagger = reader.read(classes)
 
       scanner match {
-        case config: SwaggerConfig => {
+        case config: SwaggerConfig =>
           swagger = config.configure(swagger)
-        }
-        case config => {
+        case _ =>
           // no config, do nothing
-        }
       }
       cache = Some(swagger)
       cache

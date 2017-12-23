@@ -1,7 +1,8 @@
 package play.modules.swagger.util
 
-import collection.mutable.ListBuffer
-import org.slf4j.{LoggerFactory, Logger}
+import org.slf4j.LoggerFactory
+
+import scala.collection.mutable.ListBuffer
 
 /**
   * @author ayush
@@ -16,9 +17,9 @@ object SwaggerContext {
   private val classLoaders = ListBuffer.empty[ClassLoader]
   registerClassLoader(this.getClass.getClassLoader)
 
-  def registerClassLoader(cl: ClassLoader) = this.classLoaders += cl
+  def registerClassLoader(cl: ClassLoader): Unit = this.classLoaders += cl
 
-  def loadClass(name: String) = {
+  def loadClass(name: String): Class[_] = {
     var clazz: Class[_] = null
 
     for (classLoader <- classLoaders.reverse) {
@@ -26,7 +27,7 @@ object SwaggerContext {
         try {
           clazz = Class.forName(name, true, classLoader)
         } catch {
-          case e: ClassNotFoundException => LOGGER.debug("Class not found in classLoader " + classLoader)
+          case _: ClassNotFoundException => LOGGER.debug("Class not found in classLoader " + classLoader)
         }
       }
     }

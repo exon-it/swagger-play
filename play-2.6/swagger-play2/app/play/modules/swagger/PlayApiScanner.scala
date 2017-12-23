@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.modules.swagger.util.SwaggerContext
 
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 /**
@@ -19,36 +18,36 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
 
   private def updateInfoFromConfig(swagger: Swagger): Swagger = {
 
-    var info = new Info()
+    val info = new Info()
     val playSwaggerConfig = PlayConfigFactory.getConfig
 
     if (StringUtils.isNotBlank(playSwaggerConfig.description)) {
-      info.description(playSwaggerConfig.description);
+      info.description(playSwaggerConfig.description)
     }
 
     if (StringUtils.isNotBlank(playSwaggerConfig.title)) {
-      info.title(playSwaggerConfig.title);
+      info.title(playSwaggerConfig.title)
     } else {
       // title tag needs to be present to validate against schema
-      info.title("");
+      info.title("")
     }
 
     if (StringUtils.isNotBlank(playSwaggerConfig.version)) {
-      info.version(playSwaggerConfig.version);
+      info.version(playSwaggerConfig.version)
     }
 
     if (StringUtils.isNotBlank(playSwaggerConfig.termsOfServiceUrl)) {
-      info.termsOfService(playSwaggerConfig.termsOfServiceUrl);
+      info.termsOfService(playSwaggerConfig.termsOfServiceUrl)
     }
 
     if (playSwaggerConfig.contact != null) {
       info.contact(new Contact()
-        .name(playSwaggerConfig.contact));
+        .name(playSwaggerConfig.contact))
     }
     if (playSwaggerConfig.license != null && playSwaggerConfig.licenseUrl != null) {
       info.license(new License()
         .name(playSwaggerConfig.license)
-        .url(playSwaggerConfig.licenseUrl));
+        .url(playSwaggerConfig.licenseUrl))
     }
     swagger.info(info)
   }
@@ -60,11 +59,11 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
     }
     updateInfoFromConfig(swagger)
     swagger.host(playSwaggerConfig.host)
-    swagger.basePath(playSwaggerConfig.basePath);
+    swagger.basePath(playSwaggerConfig.basePath)
 
   }
 
-  override def getFilterClass(): String = {
+  override def getFilterClass: String = {
     null
   }
 
@@ -72,7 +71,7 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
     Logger("swagger").info("ControllerScanner - looking for controllers with API annotation")
 
 
-    var routes = RouteFactory.getRoute().getAll().toList
+    val routes = RouteFactory.getRoute.getAll.asScala.toList
 
     // get controller names from application routes
     val controllers = routes.map { case (_, route) =>
@@ -80,15 +79,14 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
     }.distinct
 
 
-    var list = controllers.collect {
+    val list = controllers.collect {
       case className: String if {
         try {
           SwaggerContext.loadClass(className).getAnnotation(classOf[Api]) != null
         } catch {
-          case ex: Exception => {
+          case ex: Exception =>
             Logger("swagger").error("Problem loading class:  %s. %s: %s".format(className, ex.getClass.getName, ex.getMessage))
             false
-          }
         }
       } =>
         Logger("swagger").info("Found API controller:  %s".format(className))
@@ -99,9 +97,9 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
 
   }
 
-  override def getPrettyPrint(): Boolean = {
-    true;
+  override def getPrettyPrint: Boolean = {
+    true
   }
 
-  override def setPrettyPrint(x: Boolean) {}
+  override def setPrettyPrint(x: Boolean): Unit = {}
 }
