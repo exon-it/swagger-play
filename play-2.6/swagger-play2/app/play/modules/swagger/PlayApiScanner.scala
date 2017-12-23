@@ -18,7 +18,8 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
 
   private def updateInfoFromConfig(swagger: Swagger): Swagger = {
 
-    val info = new Info()
+    val info = Option(swagger.getInfo).getOrElse(new Info())
+
     val playSwaggerConfig = PlayConfigFactory.getConfig
 
     if (StringUtils.isNotBlank(playSwaggerConfig.description)) {
@@ -27,7 +28,7 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
 
     if (StringUtils.isNotBlank(playSwaggerConfig.title)) {
       info.title(playSwaggerConfig.title)
-    } else {
+    } else if (info.getTitle == null){
       // title tag needs to be present to validate against schema
       info.title("")
     }

@@ -56,16 +56,12 @@ public class PlayReader {
         }
 
         for (Class<?> cls : classes) {
-            read(cls);
+            readClass(cls);
         }
         return swagger;
     }
 
-    public Swagger read(Class<?> cls) {
-        return read(cls, false);
-    }
-
-    private Swagger read(Class<?> cls, boolean readHidden) {
+    private void readClass(Class<?> cls) {
 
         RouteWrapper routes = RouteFactory.getRoute();
 
@@ -79,7 +75,7 @@ public class PlayReader {
         String[] produces = new String[0];
         final Set<Scheme> globalSchemes = EnumSet.noneOf(Scheme.class);
 
-        final boolean readable = (api != null && readHidden) || (api != null && !api.hidden());
+        final boolean readable = (api != null && !api.hidden());
 
         // TODO possibly allow parsing also without @Api annotation
         if (readable) {
@@ -196,17 +192,12 @@ public class PlayReader {
                             getSwagger().path(operationPath, path);
                         }
                         path.set(httpMethod, operation);
-                        try {
-                            readImplicitParameters(method, operation, cls);
-                        } catch (Exception e) {
-                            throw e;
-                        }
+                        readImplicitParameters(method, operation, cls);
                     }
                 }
             }
         }
 
-        return getSwagger();
     }
 
     String getPathFromRoute(PathPattern pathPattern, String basePath) {
