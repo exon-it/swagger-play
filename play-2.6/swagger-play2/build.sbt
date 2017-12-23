@@ -4,21 +4,21 @@ organization := "by.exonit"
 name := "swagger-play2-play26"
 version := "1.0.0-SNAPSHOT"
 
-scalaVersion := "2.11.11"
+scalaVersion := "2.11.12"
 crossScalaVersions := Seq(scalaVersion.value, "2.12.4")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 libraryDependencies ++= Seq(
-  "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.8.9",
-  "org.slf4j"          % "slf4j-api"                  % "1.7.21",
-  "io.swagger"         % "swagger-core"               % "1.5.16",
-  "io.swagger"        %% "swagger-scala-module"       % "1.0.5-SNAPSHOT",
-  "com.typesafe.play" %% "routes-compiler"            % "2.6.0",
-  "com.typesafe.play" %% "play-ebean"                 % "4.0.2"            % "test",
-  "org.specs2"        %% "specs2-core"                % "3.8.7"            % "test",
-  "org.specs2"        %% "specs2-mock"                % "3.8.7"            % "test",
-  "org.specs2"        %% "specs2-junit"               % "3.8.7"            % "test",
-  "org.mockito"        % "mockito-core"               % "1.9.5"            % "test")
+  "com.fasterxml.jackson.module"  %% "jackson-module-scala" % "2.9.2",
+  "org.slf4j"          % "slf4j-api"                  % "1.7.25",
+  "io.swagger"         % "swagger-core"               % "1.5.17",
+  "io.swagger"        %% "swagger-scala-module"       % "1.0.4",
+  "com.typesafe.play" %% "routes-compiler"            % "2.6.10",
+  "com.typesafe.play" %% "play-ebean"                 % "4.1.0"            % "test",
+  "org.specs2"        %% "specs2-core"                % "4.0.2"            % "test",
+  "org.specs2"        %% "specs2-mock"                % "4.0.2"            % "test",
+  "org.specs2"        %% "specs2-junit"               % "4.0.2"            % "test",
+  "org.mockito"        % "mockito-core"               % "2.13.0"            % "test")
 
 mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback.xml")) }
 
