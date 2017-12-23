@@ -35,6 +35,8 @@ class PlayApiScanner() extends Scanner with SwaggerConfig {
 
     if (StringUtils.isNotBlank(playSwaggerConfig.version)) {
       info.version(playSwaggerConfig.version)
+    } else if (info.getVersion == null) {
+      info.version("beta")
     }
 
     if (StringUtils.isNotBlank(playSwaggerConfig.termsOfServiceUrl)) {

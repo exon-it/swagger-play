@@ -42,7 +42,7 @@ class SwaggerPluginImpl @Inject()(lifecycle: ApplicationLifecycle, router: Route
   logger.info("Swagger - starting initialisation...")
 
   val apiVersion: String = config.getOptional[String]("api.version") match {
-    case None => "beta"
+    case None => ""
     case Some(value) => value
   }
 
